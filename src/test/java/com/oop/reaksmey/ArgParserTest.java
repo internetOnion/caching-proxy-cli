@@ -1,4 +1,4 @@
-package com.oop;
+package com.oop.reaksmey;
 
 import org.junit.jupiter.api.Test;
 

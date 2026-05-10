@@ -1,4 +1,4 @@
-package com.oop;
+package com.oop.reaksmey;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -55,7 +55,7 @@ public class ProxyHandler implements HttpHandler {
 	private void serveFromCache(HttpExchange exchange, String cacheKey) throws IOException {
 		CachedResponse cached = cache.get(cacheKey);
 
-		for (Map.Entry<String, List<String>> headerEntry : cached.getHeaders().entrySet()) {
+		for (Map.Entry<String, List<String>> headerEntry : cached.headers().entrySet()) {
 			for (String value : headerEntry.getValue()) {
 				exchange.getResponseHeaders().add(headerEntry.getKey(), value);
 			}
@@ -63,15 +63,15 @@ public class ProxyHandler implements HttpHandler {
 		exchange.getResponseHeaders().set("X-Cache", "HIT");
 		exchange.getResponseHeaders().set("Via", "caching-proxy/1.0");
 
-		byte[] body = cached.getBody();
-		exchange.sendResponseHeaders(cached.getStatusCode(), body.length);
+		byte[] body = cached.body();
+		exchange.sendResponseHeaders(cached.statusCode(), body.length);
 		if (body.length > 0) {
 			try (OutputStream os = exchange.getResponseBody()) {
 				os.write(body);
 			}
 		}
 
-		log("GET", cacheKey, cached.getStatusCode(), "HIT");
+		log("GET", cacheKey, cached.statusCode(), "HIT");
 	}
 
 	private void proxyToOrigin(HttpExchange exchange, String cacheKey) throws IOException {

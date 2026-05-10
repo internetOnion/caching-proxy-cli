@@ -38,7 +38,7 @@
  						<configuration>
  							<transformers>
  								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
- 									<mainClass>com.oop.Application</mainClass>
+ 									<mainClass>com.oop.reaksmey.Application</mainClass>
  								</transformer>
  							</transformers>
  						</configuration>

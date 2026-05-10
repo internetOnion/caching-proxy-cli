@@ -1,9 +1,8 @@
-package com.oop;
+package com.oop.reaksmey;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +46,7 @@ class CacheStoreTest {
 		cache.put("/test", first);
 		cache.put("/test", second);
 		assertEquals(second, cache.get("/test"));
-		assertEquals(404, cache.get("/test").getStatusCode());
+		assertEquals(404, cache.get("/test").statusCode());
 	}
 
 	@Test
