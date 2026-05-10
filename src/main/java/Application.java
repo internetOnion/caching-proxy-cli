@@ -13,7 +13,14 @@ import java.time.Duration;
 public class Application {
 
 	public static void main(String[] args) throws IOException {
-		ArgParser parsed = ArgParser.parse(args);
+		ArgParser parsed;
+		try {
+			parsed = ArgParser.parse(args);
+		} catch (IllegalArgumentException e) {
+			System.err.println("Error: " + e.getMessage());
+			System.exit(1);
+			return;
+		}
 
 		if (parsed.isClearCache()) {
 			System.out.println("Cache cleared.");

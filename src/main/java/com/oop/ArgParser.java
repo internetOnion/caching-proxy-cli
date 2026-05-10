@@ -23,25 +23,21 @@ public class ArgParser {
 			switch (arg) {
 				case "--port":
 					if (i + 1 >= args.length) {
-						System.err.println("Error: --port requires a value");
-						System.exit(1);
+						throw new IllegalArgumentException("--port requires a value");
 					}
 					try {
 						port = Integer.parseInt(args[i + 1]);
 					} catch (NumberFormatException e) {
-						System.err.println("Error: --port must be a number");
-						System.exit(1);
+						throw new IllegalArgumentException("--port must be a number");
 					}
 					if (port < 1 || port > 65535) {
-						System.err.println("Error: --port must be between 1 and 65535");
-						System.exit(1);
+						throw new IllegalArgumentException("--port must be between 1 and 65535");
 					}
 					i += 2;
 					break;
 				case "--origin":
 					if (i + 1 >= args.length) {
-						System.err.println("Error: --origin requires a value");
-						System.exit(1);
+						throw new IllegalArgumentException("--origin requires a value");
 					}
 					origin = args[i + 1];
 					i += 2;
@@ -51,20 +47,17 @@ public class ArgParser {
 					i++;
 					break;
 				default:
-					System.err.println("Error: unknown argument: " + arg);
-					System.exit(1);
+					throw new IllegalArgumentException("unknown argument: " + arg);
 			}
 		}
 
 		if (clearCache) {
 			if (origin != null || port != 3000) {
-				System.err.println("Error: --clear-cache cannot be used with --port or --origin");
-				System.exit(1);
+				throw new IllegalArgumentException("--clear-cache cannot be used with --port or --origin");
 			}
 		} else {
 			if (origin == null) {
-				System.err.println("Error: --origin is required");
-				System.exit(1);
+				throw new IllegalArgumentException("--origin is required");
 			}
 		}
 
