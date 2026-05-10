@@ -71,7 +71,8 @@ public class Application {
 					.build();
 			client.send(probe, HttpResponse.BodyHandlers.discarding());
 		} catch (Exception e) {
-			System.out.println("Warning: could not reach origin at " + origin + " (" + e.getMessage() + ")");
+			String reason = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+			System.out.println("Warning: could not reach origin at " + origin + " (" + reason + ")");
 		}
 	}
 }

@@ -32,16 +32,24 @@ public class ProxyHandler implements HttpHandler {
 
 	@Override
 	public void handle(HttpExchange exchange) throws IOException {
-		String method = exchange.getRequestMethod();
-		boolean isGet = "GET".equalsIgnoreCase(method);
-		String cacheKey = exchange.getRequestURI().toString();
+		try {
+			String method = exchange.getRequestMethod();
+			boolean isGet = "GET".equalsIgnoreCase(method);
+			String cacheKey = exchange.getRequestURI().toString();
 
-		if (isGet && cache.contains(cacheKey)) {
-			serveFromCache(exchange, cacheKey);
-			return;
+			if (isGet && cache.contains(cacheKey)) {
+				serveFromCache(exchange, cacheKey);
+				return;
+			}
+
+			proxyToOrigin(exchange, cacheKey);
+		} catch (Exception e) {
+			try {
+				sendError(exchange, "500 Internal Server Error");
+			} catch (IOException ex) {
+				// response already partially sent, cannot recover
+			}
 		}
-
-		proxyToOrigin(exchange, cacheKey);
 	}
 
 	private void serveFromCache(HttpExchange exchange, String cacheKey) throws IOException {
@@ -91,7 +99,8 @@ public class ProxyHandler implements HttpHandler {
 			log(method, cacheKey, 502, "MISS");
 			return;
 		} catch (IOException e) {
-			sendError(exchange, "502 Bad Gateway: " + e.getMessage());
+			String reason = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+			sendError(exchange, "502 Bad Gateway: " + reason);
 			log(method, cacheKey, 502, "MISS");
 			return;
 		}
@@ -131,15 +140,15 @@ public class ProxyHandler implements HttpHandler {
 				continue;
 			}
 			String lowerName = name.toLowerCase();
-			if ("host".equals(lowerName) || "connection".equals(lowerName) || "transfer-encoding".equals(lowerName)) {
+			if ("host".equals(lowerName) || "connection".equals(lowerName)
+					|| "transfer-encoding".equals(lowerName) || "content-length".equals(lowerName)
+					|| "expect".equals(lowerName) || "upgrade".equals(lowerName)) {
 				continue;
 			}
 			for (String value : headerEntry.getValue()) {
 				builder.header(name, value);
 			}
 		}
-		URI originUri = URI.create(origin);
-		builder.header("Host", originUri.getHost());
 	}
 
 	private void sendError(HttpExchange exchange, String message) throws IOException {
