@@ -31,7 +31,7 @@ public class ProxyHandler implements HttpHandler {
 	}
 
 	@Override
-	public void handle(HttpExchange exchange) throws IOException {
+	public void handle(HttpExchange exchange) {
 		try {
 			String method = exchange.getRequestMethod();
 			boolean isGet = "GET".equalsIgnoreCase(method);
@@ -55,14 +55,15 @@ public class ProxyHandler implements HttpHandler {
 	private void serveFromCache(HttpExchange exchange, String cacheKey) throws IOException {
 		CachedResponse cached = cache.get(cacheKey);
 
+		// Add cached headers to http response
 		for (Map.Entry<String, List<String>> headerEntry : cached.headers().entrySet()) {
 			for (String value : headerEntry.getValue()) {
 				exchange.getResponseHeaders().add(headerEntry.getKey(), value);
 			}
 		}
 		exchange.getResponseHeaders().set("X-Cache", "HIT");
-		exchange.getResponseHeaders().set("Via", "caching-proxy/1.0");
 
+		// Send cached response
 		byte[] body = cached.body();
 		exchange.sendResponseHeaders(cached.statusCode(), body.length);
 		if (body.length > 0) {
@@ -121,7 +122,6 @@ public class ProxyHandler implements HttpHandler {
 			}
 		}
 		exchange.getResponseHeaders().set("X-Cache", "MISS");
-		exchange.getResponseHeaders().set("Via", "caching-proxy/1.0");
 
 		exchange.sendResponseHeaders(statusCode, body.length);
 		if (body.length > 0) {
@@ -140,6 +140,7 @@ public class ProxyHandler implements HttpHandler {
 				continue;
 			}
 			String lowerName = name.toLowerCase();
+			// skip hop-by-hop headers that should not be forwarded
 			if ("host".equals(lowerName) || "connection".equals(lowerName)
 					|| "transfer-encoding".equals(lowerName) || "content-length".equals(lowerName)
 					|| "expect".equals(lowerName) || "upgrade".equals(lowerName)) {

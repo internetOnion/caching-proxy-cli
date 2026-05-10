@@ -55,7 +55,7 @@ public class Application {
 		}
 
 		String scheme = uri.getScheme();
-		if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
+		if ((!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
 			System.err.println("Error: origin must start with http:// or https://");
 			System.exit(1);
 		}
